@@ -1,14 +1,27 @@
-from django.shortcuts import render
+from .models import Post, Group
 
-# Create your views here.
-# post/views.py
-from django.http import HttpResponse
-
-# Главная страница
-def index(request):    
-    return HttpResponse('Main page')
+from django.shortcuts import render, get_object_or_404
 
 
-# Страница группы
+def index(request):
+    template = 'posts/index.html'
+    title = "Последние обновления на сайте"
+    posts = Post.objects.all()[:10]
+    context = {
+        "posts": posts,
+        "title": title,
+    }
+    return render(request, template, context)
+
+
 def group_posts(request, slug):
-    return HttpResponse(f' Group {slug} page')
+    template = 'posts/group_list.html'
+    group = get_object_or_404(Group, slug=slug)
+    posts = Post.objects.filter(group=group).order_by('-pub_date')[:10]
+    title = "Записи сообщества"
+    context = {
+        'group': group,
+        'posts': posts,
+        "title": title,
+    }
+    return render(request, template, context)
